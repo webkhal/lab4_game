@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sweeper</title>
+</head>
+<style>
+    td,
+    tr,
+    table {
+        border: 1px solid red;
+    }
+
+    td {
+        height: 15px;
+        width: 15px;
+        padding: 15px;
+    }
+</style>
+
+<body>
+    <center>
+        <h3>Welcome, <span id="name"></span></h3>
+        <h4>Score: <span id="score"> 0 </span></h4>
+        <table id="myTable">
+
+        </table>
+    </center>
+</body>
+<script>
+    let score=0;
+    let gameOverAudio = new Audio('./assets/gameOverSound.mp3');
+
+    //Player Name input
+    const name = prompt("Enter your Name: ");
+    document.getElementById('name').innerText = name;
+
+    //if my localStorage doesn't have anything called leaderBoard, initialize it with []
+    if (!(localStorage.getItem('leaderBoard'))){
+        localStorage.setItem('leaderBoard', JSON.stringify([]));
+    }
+
+    let leaderBoard = JSON.parse(localStorage.getItem('leaderBoard'));
+
+    function main() {
+
+        const arr = new Array(100); //[x100 empty]
+        for(let i=0; i<100; i++) arr[i]=i+1;
+        //shuffle the array
+        arr.sort((a,b)=> Math.random() - 0.5); 
+
+        let myTable = document.querySelector('#myTable');
+        let counter = 0;
+        for (let i = 1; i <= 10; i++) {
+            let tr = document.createElement('tr');
+            for (let j = 1; j <= 10; j++) {
+                let td = document.createElement('td');
+                td.setAttribute('id',arr[counter])
+                counter++;
+                td.addEventListener('click', onClickHandler);
+                tr.appendChild(td);
+            }
+            myTable.appendChild(tr);
+        }
+
+    }
+    main();
+
+
+    function onClickHandler(e){
+        if(e.target.style.backgroundColor == 'red') return
+
+        const clickedNum = e.target.getAttribute('id');
+        console.log(clickedNum);
+
+        //GameOver Logic
+        if(isPrime(clickedNum)){
+            gameOverAudio.play();
+            alert("Game Over Buddy!");
+            window.location.reload();
+            return
+        }
+        else {
+            score++;
+            document.getElementById('score').innerText = score;
+        }
+        
+
+        //Changing background color for the multiples of Clicked Number
+        for(let i=clickedNum; i<=100; i++){
+            if(i % clickedNum == 0) {
+                document.getElementById(i).style.backgroundColor = 'red';
+            }
+        }
+
+        if(clickedNum == 1){
+            setTimeout(()=>{
+                alert("You Won!")
+
+                let currentScore = winnerScore();
+                doRanking(currentScore);
+
+            },500)
+        }
+
+    }
+
+    function winnerScore(){
+        return {name,attempts:score}
+    }
+
+    function isPrime(N) {
+        if (N == 1) return false;
+        for (i = 2; i * i <= N; i++) {
+            if (N % i == 0) return false;
+        }
+        return true;
+    }
+
+    function doRanking(currentScore){
+
+        //Do the ranking algorithm
+
+        //store it to localStorage
+
+        localStorage.setItem('leaderBoard', JSON.stringify(leaderBoard));
+    }
+
+</script>
+
+</html>
+
+
+<!-- 
+
+    1. you need to make a variable "score" :  
+        Increment everytime you click
+        has to be shown on frontend
+    2. when you lose you have to play a audio -> refresh the page
+    3. when you open the website, it should be asking you your name 
+
+    [{name:"khalid", attempts:1}]
+    localStorage.setItem('score',123)
+    localStorage.getItem('score')
+ -->
+
